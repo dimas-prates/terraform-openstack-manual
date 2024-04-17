@@ -35,3 +35,7 @@ override.tf.json
 terraform.rc
 
 # Ignore keys
+ansible.key
+ansible.key.pub
+#open rc files
+app-cred-*-openrc.sh
