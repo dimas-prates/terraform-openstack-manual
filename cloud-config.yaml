@@ -1,0 +1,63 @@
+#cloud-config
+chpasswd:
+  list: |
+    root:rootroot
+  expire: False
+
+write_files:
+  - path: /root/.ssh/authorized_keys
+    content: |
+      ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/Vxo8IRZrcTxP4IGQ97/ziKjgJVmFGuRGTboopyFy3jX2MmiU4rLZRCxxk7cHVtG2qE5lofh9knmCgciOx6pSmbr092pkIbWBeZfRqDz21UD7J4gTEwsGPXjulivXa1YGA3HRHpPQbOi+YpzEC+5fyHZ3oVxfdbqxsnQ8dazsOuPiOH26ht26iM/dykNyQPZpScDehJ90Pw2chP/Owg4i44lajDzgeyCFc9wF+yUvZlnlB2H1Ay5pFqH/u1M8ea7BD7xUMChrKxD+kM2mM11no8At6VJipcDY5+mFmX69gHbR31SkHzh934j3Nr7wZUnjQih6HizI5V2xbyNiylSHEZKNIMa8lpeiuhY4+FzVz4MRsogniuUAvcHcdvIsT5n+LIM3J2zlKikVerzYnGSjPpNtedgmw3N+CLG99DawD69NGnlyys1cIrIBdSybfSFTmG3FRhnHAbjKp4WY69SCxeTXCisi1njLvypVYTLIijnGLaUgfiIB0EmNeIxXcDg7DfHHn4Snt1Jr4iivRlAVWpy6dxIBufzUc4EKRJlp3KXd5dj/LfWoJvxqNQOB4nDMAtFOCQJgwLC91Exn4Ww42ocSiCGC/Id8/efXouy86r2uceGw/UC08MRUbE/Hg92hlEtX0Hv7cMWH1lRYHlTwzDMzFVJ4IwaZsHS9tNT4PQ== noname
+    permissions: '0600'
+  - path: /root/.ssh/ansible.key
+    content: |
+      -----BEGIN OPENSSH PRIVATE KEY-----
+      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
+      2gMmsmaaMxnXAAAABm5vbmFtZQECAwQ=
+      -----END OPENSSH PRIVATE KEY-----
+    permissions: '0600'
