@@ -1,8 +1,8 @@
 #cloud-config
-chpasswd:
-  list: |
-    root:rootroot
-  expire: False
+# chpasswd:
+#   list: |
+#     root:rootroot
+#   expire: False
 
 write_files:
   - path: /root/.ssh/authorized_keys
