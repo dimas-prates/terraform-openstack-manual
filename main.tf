@@ -67,8 +67,8 @@ resource "openstack_networking_secgroup_rule_v2" "ssh-security-rule" {
   port_range_min    = 22
   port_range_max    = 22
 
-  remote_ip_prefix  = var.external_remote_ip
-  ethertype         = "IPv4"  # Specify the ethertype as "IPv4"
+  remote_ip_prefix = var.external_remote_ip
+  ethertype        = "IPv4" # Specify the ethertype as "IPv4"
 }
 
 # Create security group rule for SSH
@@ -80,8 +80,8 @@ resource "openstack_networking_secgroup_rule_v2" "vpn-security-rule" {
   port_range_min    = 1194
   port_range_max    = 1194
 
-  remote_ip_prefix  = var.external_remote_ip
-  ethertype         = "IPv4"  # Specify the ethertype as "IPv4"
+  remote_ip_prefix = var.external_remote_ip
+  ethertype        = "IPv4" # Specify the ethertype as "IPv4"
 }
 
 # Create the first network
@@ -124,6 +124,45 @@ resource "openstack_networking_subnet_v2" "openstack-external-subnet" {
   }
 }
 
+# Create a storage ceph main network
+resource "openstack_networking_network_v2" "ceph-main-network" {
+  provider       = openstack.rc
+  name           = "ceph-main-network"
+  admin_state_up = true
+}
+
+# Create subnets for storage ceph main network
+resource "openstack_networking_subnet_v2" "ceph-main-subnet" {
+  provider        = openstack.rc
+  network_id      = openstack_networking_network_v2.ceph-main-network.id
+  cidr            = "10.69.69.0/24" # Example CIDR for the second subnet
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
+  allocation_pool {
+    start = "10.69.69.2"
+    end   = "10.69.69.254"
+  }
+}
+
+# Create a storage ceph replica network
+resource "openstack_networking_network_v2" "ceph-replica-network" {
+  provider       = openstack.rc
+  name           = "ceph-replica-network"
+  admin_state_up = true
+}
+
+# Create subnets for storage ceph replica network
+resource "openstack_networking_subnet_v2" "ceph-replica-subnet" {
+  provider        = openstack.rc
+  network_id      = openstack_networking_network_v2.ceph-replica-network.id
+  cidr            = "10.169.169.0/24" # Example CIDR for the second subnet
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
+  allocation_pool {
+    start = "10.169.169.2"
+    end   = "10.169.169.254"
+  }
+}
 
 # Create a router
 resource "openstack_networking_router_v2" "openstack-router" {
@@ -133,16 +172,31 @@ resource "openstack_networking_router_v2" "openstack-router" {
 }
 
 # Attach subnets to the router
-resource "openstack_networking_router_interface_v2" "internal-subnet-interface" {
+resource "openstack_networking_router_interface_v2" "openstack-internal-subnet-interface" {
   provider  = openstack.rc
   router_id = openstack_networking_router_v2.openstack-router.id
   subnet_id = openstack_networking_subnet_v2.openstack-internal-subnet.id
 }
-
-resource "openstack_networking_router_interface_v2" "external-subnet-interface" {
+resource "openstack_networking_router_interface_v2" "openstack-external-subnet-interface" {
   provider  = openstack.rc
   router_id = openstack_networking_router_v2.openstack-router.id
   subnet_id = openstack_networking_subnet_v2.openstack-external-subnet.id
+}
+resource "openstack_networking_router_interface_v2" "ceph-main-subnet-interface" {
+  provider  = openstack.rc
+  router_id = openstack_networking_router_v2.openstack-router.id
+  subnet_id = openstack_networking_subnet_v2.ceph-main-subnet.id
+}
+resource "openstack_networking_router_interface_v2" "ceph-replica-subnet-interface" {
+  provider  = openstack.rc
+  router_id = openstack_networking_router_v2.openstack-router.id
+  subnet_id = openstack_networking_subnet_v2.ceph-replica-subnet.id
+}
+
+# Create a floating IP resource
+resource "openstack_networking_floatingip_v2" "openstack-floating-ip" {
+  provider = openstack.rc
+  pool     = "PUBLIC-IPv4" # Specify the pool from which the floating IP will be allocated
 }
 
 # Create controllers instances
@@ -159,6 +213,12 @@ resource "openstack_compute_instance_v2" "openstack-controller-instances" {
   }
   network {
     name = openstack_networking_network_v2.openstack-external-network.name
+  }
+  network {
+    name = openstack_networking_network_v2.ceph-main-network.name
+  }
+  network {
+    name = openstack_networking_network_v2.ceph-replica-network.name
   }
   block_device {
     uuid                  = var.image_id
@@ -185,6 +245,9 @@ resource "openstack_compute_instance_v2" "openstack-compute-instances" {
   network {
     name = openstack_networking_network_v2.openstack-external-network.name
   }
+  network {
+    name = openstack_networking_network_v2.ceph-main-network.name
+  }
   block_device {
     uuid                  = var.image_id
     source_type           = "image"
@@ -205,10 +268,10 @@ resource "openstack_compute_instance_v2" "openstack-storage-instances" {
   security_groups = [openstack_networking_secgroup_v2.openstack-security-group-access.name, "default"]
   user_data       = file("./cloud-config.yaml")
   network {
-    name = openstack_networking_network_v2.openstack-internal-network.name
+    name = openstack_networking_network_v2.ceph-main-network.name
   }
   network {
-    name = openstack_networking_network_v2.openstack-external-network.name
+    name = openstack_networking_network_v2.ceph-replica-network.name
   }
   block_device {
     uuid                  = var.image_id
@@ -222,8 +285,8 @@ resource "openstack_compute_instance_v2" "openstack-storage-instances" {
 
 # Create VPN instance
 resource "openstack_compute_instance_v2" "vpn-instance" {
-  provider        = openstack.rc
-  count           = 1
+  provider = openstack.rc
+  #count           = 1
   name            = "vpn-1"
   flavor_name     = var.flavor_name_firewall
   key_pair        = openstack_compute_keypair_v2.openstack-key.name
@@ -232,9 +295,10 @@ resource "openstack_compute_instance_v2" "vpn-instance" {
   network {
     name = openstack_networking_network_v2.openstack-internal-network.name
   }
-  network {
-    name = openstack_networking_network_v2.openstack-external-network.name
-  }
+  # network {
+  #   name = openstack_networking_network_v2.openstack-external-network.name
+  # }
+
   block_device {
     uuid                  = var.image_id
     source_type           = "image"
@@ -243,4 +307,12 @@ resource "openstack_compute_instance_v2" "vpn-instance" {
     volume_size           = 10   # Adjust size as needed
     delete_on_termination = true # Set this flag to delete the volume on instance termination
   }
+  # Attach floating IP to the VPN instance
+  #floating_ip = openstack_networking_floatingip_v2.openstack-floating-ip.address
+}
+# Associate the floating IP with the VM
+resource "openstack_compute_floatingip_associate_v2" "floating-ip-associate" {
+  provider    = openstack.rc
+  floating_ip = openstack_networking_floatingip_v2.openstack-floating-ip.address
+  instance_id = openstack_compute_instance_v2.vpn-instance.id
 }
