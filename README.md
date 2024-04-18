@@ -30,8 +30,11 @@ tree -l
 ├── app-cred-cli-projectname-terraform-openrc.sh
 ├── cloud-config.yaml
 ├── LICENSE
+├── openstack.key
+├── openstack.key.pub
 ├── openstack-manual.tf
 ├── openstack_variables-sample.tfvars
 ├── openstack_variables.tfvars
-└── README.md
+├── README.md
+└── terraform.tfstate
 ```
