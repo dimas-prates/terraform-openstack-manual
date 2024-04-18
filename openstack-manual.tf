@@ -24,6 +24,16 @@ provider "openstack" {
   region                        = var.region
 }
 
+# Create an object storage container with private access
+resource "openstack_objectstorage_container_v1" "openstack-object-storage-container" {
+  provider = openstack.rc
+  name     = "openstack-object-storage"
+  metadata = {
+    access_control = "private"
+  }
+  force_destroy = true
+}
+
 # Create a new SSH key pair
 resource "openstack_compute_keypair_v2" "openstack-key" {
   provider   = openstack.rc
@@ -126,11 +136,12 @@ resource "openstack_compute_instance_v2" "openstack-controller-instances" {
     name = openstack_networking_network_v2.openstack-external-network.name
   }
   block_device {
-    uuid             = var.image_id
-    source_type      = "image"
-    destination_type = "volume"
-    boot_index       = 0
-    volume_size      = 20 # Adjust size as needed
+    uuid                  = var.image_id
+    source_type           = "image"
+    destination_type      = "volume"
+    boot_index            = 0
+    volume_size           = 10   # Adjust size as needed
+    delete_on_termination = true # Set this flag to delete the volume on instance termination
   }
 }
 
@@ -150,11 +161,12 @@ resource "openstack_compute_instance_v2" "openstack-compute-instances" {
     name = openstack_networking_network_v2.openstack-external-network.name
   }
   block_device {
-    uuid             = var.image_id
-    source_type      = "image"
-    destination_type = "volume"
-    boot_index       = 0
-    volume_size      = 20 # Adjust size as needed
+    uuid                  = var.image_id
+    source_type           = "image"
+    destination_type      = "volume"
+    boot_index            = 0
+    volume_size           = 10   # Adjust size as needed
+    delete_on_termination = true # Set this flag to delete the volume on instance termination
   }
 }
 
@@ -174,10 +186,11 @@ resource "openstack_compute_instance_v2" "deploy-instance" {
     name = openstack_networking_network_v2.openstack-external-network.name
   }
   block_device {
-    uuid             = var.image_id
-    source_type      = "image"
-    destination_type = "volume"
-    boot_index       = 0
-    volume_size      = 20 # Adjust size as needed
+    uuid                  = var.image_id
+    source_type           = "image"
+    destination_type      = "volume"
+    boot_index            = 0
+    volume_size           = 10   # Adjust size as needed
+    delete_on_termination = true # Set this flag to delete the volume on instance termination
   }
 }
