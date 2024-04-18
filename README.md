@@ -1,5 +1,9 @@
 # Commands to execute:
 *OBS: the flag **"-var-file"** it's for the stored variables in a file*
+* Set the variable **"external_remote_ip"** with your public IP
+```bash
+/usr/bin/sed -i "s/^external_remote_ip\s*=\s*\"\s*\"/external_remote_ip = \"$(curl -s ifconfig.io | cut -d' ' -f1)\/32\"/" openstack_variables-sample.tfvars
+```
 * Initiate directory for Terraform:
 ```bash
 terraform init -var-file=openstack_variables.tfvars
@@ -20,6 +24,7 @@ terraform apply -auto-approve -var-file=openstack_variables.tfvars
 ```bash
 terraform destroy -auto-approve -var-file=openstack_variables.tfvars
 ```
+
 ## Structure
 ```bash
 tree -l
