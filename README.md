@@ -36,9 +36,14 @@ openstack security group rule create openstack-security-group-access --ingress -
 ```
 - Login/SSH
 ```bash
-openstack server ssh -i openstack.key  -l rocky vpn-1
+openstack server ssh -i openstack.key -l rocky <vm-name>
 ```
 
+- Attaching floating IP
+```bash
+openstack floating ip list
+openstack server add floating ip <server-name-or-id> <floating-ip>
+```
 ## Structure
 ```bash
 $ tree
