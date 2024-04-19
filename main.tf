@@ -278,7 +278,7 @@ resource "openstack_compute_instance_v2" "openstack-storage-instances" {
     source_type           = "image"
     destination_type      = "volume"
     boot_index            = 0
-    volume_size           = 350  # Adjust size as needed
+    volume_size           = 370  # Adjust size as needed
     delete_on_termination = true # Set this flag to delete the volume on instance termination
   }
 }
@@ -310,6 +310,7 @@ resource "openstack_compute_instance_v2" "vpn-instance" {
   # Attach floating IP to the VPN instance
   #floating_ip = openstack_networking_floatingip_v2.openstack-floating-ip.address
 }
+
 # Associate the floating IP with the VM
 resource "openstack_compute_floatingip_associate_v2" "floating-ip-associate" {
   provider    = openstack.rc
