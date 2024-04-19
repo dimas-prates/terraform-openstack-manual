@@ -1,4 +1,22 @@
-# Terraform commands to execute:
+# Terraform for OpenStack
+
+## Request resume:
+- 3 VMs for controller instances
+- 2 VMs for compute instances
+- 2 VMs for storage instances
+- 1 VM for access, in this case, VPN instance
+- One keypair to acess all VMs
+- One floating IP for VPN instance
+- Two security groups, for SSH access (TCP 22) and VPN connection (UDP 1194)
+- One Object Storage
+- Storage intances needs one additional blank volume (each one)
+- Two netowrks, internal and external, for the VPN instance, controller instances and compute instances
+- Two networks, main and replica, for the storage intances
+- One router for all networks
+- Compute instances and VPN instance needs access to the Storage's main network
+- Controller instances needs access to the Storage's main network and replica network
+
+## Terraform commands to execute:
 *OBS: the flag **"-var-file"** it's for the stored variables in a file*
 * Set the variable **"external_remote_ip"** with your public IP
 ```bash
