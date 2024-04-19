@@ -278,8 +278,16 @@ resource "openstack_compute_instance_v2" "openstack-storage-instances" {
     source_type           = "image"
     destination_type      = "volume"
     boot_index            = 0
-    volume_size           = 370  # Adjust size as needed
+    volume_size           = 10   # Adjust size as needed
     delete_on_termination = true # Set this flag to delete the volume on instance termination
+  }
+
+  block_device {
+    source_type           = "blank"  # Specify the source type as "blank" for a new volume
+    destination_type      = "volume" # Specify the destination type as "volume" for a new volume
+    boot_index            = 1        # Set boot index to 1 for the additional volume
+    volume_size           = 310      # Adjust size as needed
+    delete_on_termination = true     # Set this flag to delete the volume on instance termination
   }
 }
 
@@ -294,6 +302,9 @@ resource "openstack_compute_instance_v2" "vpn-instance" {
   user_data       = file("./cloud-config.yaml")
   network {
     name = openstack_networking_network_v2.openstack-internal-network.name
+  }
+  network {
+    name = openstack_networking_network_v2.ceph-main-network.name
   }
   # network {
   #   name = openstack_networking_network_v2.openstack-external-network.name
