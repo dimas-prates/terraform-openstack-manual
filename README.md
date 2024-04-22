@@ -26,6 +26,10 @@
 ```bash
 terraform init -var-file=openstack_variables.auto.tfvars
 ```
+* Format/Linting 
+```bash
+terraform fmt
+```
 * Validate configurations files (*.tf) in the current directory:
 ```bash
 terraform validate
