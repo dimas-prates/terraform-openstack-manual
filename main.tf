@@ -104,9 +104,8 @@ resource "openstack_networking_subnet_v2" "openstack-internal-subnet" {
   }
   # Exclude the reserved IP from the DHCP pool
   host_routes {
-    destination_cidr = "${cidrhost("10.66.66.0/24", 4)}/32"
-    next_hop         = cidrhost("10.66.66.0/24", 4)
-
+    destination_cidr = "${cidrhost("10.66.66.0/24", 3)}/32"
+    next_hop         = cidrhost("10.66.66.0/24", 3)
   }
 }
 
