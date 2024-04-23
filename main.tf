@@ -102,6 +102,12 @@ resource "openstack_networking_subnet_v2" "openstack-internal-subnet" {
     start = "10.66.66.2"
     end   = "10.66.66.254"
   }
+  # Exclude the reserved IP from the DHCP pool
+  host_routes {
+    destination_cidr = "${cidrhost("10.66.66.0/24", 4)}/32"
+    next_hop         = cidrhost("10.66.66.0/24", 4)
+
+  }
 }
 
 # Create a second network
