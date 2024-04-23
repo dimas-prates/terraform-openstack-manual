@@ -100,12 +100,11 @@ resource "openstack_networking_subnet_v2" "openstack-internal-subnet" {
   dns_nameservers = ["8.8.8.8"]
   allocation_pool {
     start = "10.66.66.2"
-    end   = "10.66.66.254"
+    end   = cidrhost("10.66.66.0/24", 3 - 1)
   }
-  # Exclude the reserved IP from the DHCP pool
-  host_routes {
-    destination_cidr = "${cidrhost("10.66.66.0/24", 3)}/32"
-    next_hop         = cidrhost("10.66.66.0/24", 3)
+  allocation_pool {
+    start = cidrhost("10.66.66.0/24", 3 + 1)
+    end   = "10.66.66.254"
   }
 }
 
