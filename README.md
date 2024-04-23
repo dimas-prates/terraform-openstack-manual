@@ -11,6 +11,7 @@
 - One Object Storage
 - Storage intances needs one additional blank volume (each one)
 - Two netowrks, internal and external, for the VPN instance, controller instances and compute instances
+- One IP reserved in internal network
 - Two networks, main and replica, for the storage intances
 - One router for all networks
 - Compute instances and VPN instance needs access to the Storage's main network
