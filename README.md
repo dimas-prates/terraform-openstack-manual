@@ -1,6 +1,6 @@
 # Terraform for OpenStack
 
-## Request resume:
+## Request resumed:
 - 3 VMs for controller instances
 - 2 VMs for compute instances
 - 2 VMs for storage instances
