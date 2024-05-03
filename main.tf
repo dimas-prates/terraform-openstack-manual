@@ -249,6 +249,9 @@ resource "openstack_compute_instance_v2" "openstack-controller-instances" {
   network {
     name = openstack_networking_network_v2.ceph-replica-network.name
   }
+  network {
+    name = openstack_networking_network_v2.openstack-vxlan-network.name
+  }
   block_device {
     uuid                  = var.image_id
     source_type           = "image"
@@ -277,6 +280,9 @@ resource "openstack_compute_instance_v2" "openstack-compute-instances" {
   network {
     name = openstack_networking_network_v2.ceph-main-network.name
   }
+  network {
+    name = openstack_networking_network_v2.openstack-vxlan-network.name
+  }
   block_device {
     uuid                  = var.image_id
     source_type           = "image"
@@ -301,6 +307,9 @@ resource "openstack_compute_instance_v2" "openstack-storage-instances" {
   }
   network {
     name = openstack_networking_network_v2.ceph-replica-network.name
+  }
+  network {
+    name = openstack_networking_network_v2.openstack-vxlan-network.name
   }
   block_device {
     uuid                  = var.image_id
