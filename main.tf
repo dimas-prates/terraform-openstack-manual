@@ -168,6 +168,26 @@ resource "openstack_networking_subnet_v2" "ceph-replica-subnet" {
   }
 }
 
+# Create a vxlan network
+resource "openstack_networking_network_v2" "openstack-vxlan-network" {
+  provider       = openstack.rc
+  name           = "openstack-vxlan-network"
+  admin_state_up = true
+}
+
+# Create subnets vxlan network
+resource "openstack_networking_subnet_v2" "openstack-vxlan-subnet" {
+  provider        = openstack.rc
+  network_id      = openstack_networking_network_v2.openstack-vxlan-network.id
+  cidr            = "10.6.6.0/24" # Example CIDR for the second subnet
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
+  allocation_pool {
+    start = "10.6.6.2"
+    end   = "10.6.6.254"
+  }
+}
+
 # Create a router
 resource "openstack_networking_router_v2" "openstack-router" {
   provider         = openstack.rc
@@ -195,6 +215,11 @@ resource "openstack_networking_router_interface_v2" "ceph-replica-subnet-interfa
   provider  = openstack.rc
   router_id = openstack_networking_router_v2.openstack-router.id
   subnet_id = openstack_networking_subnet_v2.ceph-replica-subnet.id
+}
+resource "openstack_networking_router_interface_v2" "openstack-vxlan-subnet-interface" {
+  provider  = openstack.rc
+  router_id = openstack_networking_router_v2.openstack-router.id
+  subnet_id = openstack_networking_subnet_v2.openstack-vxlan-subnet.id
 }
 
 # Create a floating IP resource
